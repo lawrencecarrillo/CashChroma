@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1a1c1f"/>
+  <circle cx="130" cy="160" r="200" fill="rgba(255,215,0,0.07)"/>
+  <circle cx="380" cy="360" r="200" fill="rgba(0,212,255,0.07)"/>
+  <text x="256" y="355"
+    text-anchor="middle"
+    font-family="Arial Black, Helvetica, sans-serif"
+    font-weight="900"
+    font-size="290"
+    fill="#00FF87">$</text>
+  <circle cx="385" cy="118" r="32" fill="#FF2D78" opacity="0.9"/>
+  <circle cx="127" cy="394" r="32" fill="#00D4FF" opacity="0.9"/>
+  <circle cx="390" cy="394" r="18" fill="#FFD600" opacity="0.9"/>
+</svg>

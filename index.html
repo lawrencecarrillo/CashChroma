@@ -2,476 +2,202 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CaShChroma — Visual Cash Flow Calendar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Ca$hChroma</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="app">
-
-  <!-- ── Header ── -->
+  <!-- Header -->
   <header>
-    <div class="logo">CaSh<span>Chroma</span></div>
-    <div style="font-size:0.7rem;color:#5a7888;font-family:var(--font-mono);">visual cash intelligence ✦</div>
+    <div class="logo">Ca$h<span>Chroma</span></div>
+    <div class="header-right">
+      <div class="balance" id="balance">$0.00</div>
+      <button class="calc-toggle" onclick="toggleCalc()" title="Calculator">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="16" height="16" rx="3" stroke="#FFD700" stroke-width="1.5"/>
+          <rect x="5" y="5" width="10" height="3" rx="1" fill="#FFD700"/>
+          <circle cx="5.5" cy="12" r="1" fill="#FFD700"/>
+          <circle cx="10" cy="12" r="1" fill="#FFD700"/>
+          <circle cx="14.5" cy="12" r="1" fill="#FFD700"/>
+          <circle cx="5.5" cy="15.5" r="1" fill="#FFD700"/>
+          <circle cx="10" cy="15.5" r="1" fill="#FFD700"/>
+          <circle cx="14.5" cy="15.5" r="1" fill="#FFD700"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
-  <!-- ── Summary Bar ── -->
-  <div class="summary-bar">
-    <div class="stat-card balance" id="balance-card">
-      <div class="stat-label">Balance Right Now</div>
-      <div class="stat-value green" id="stat-balance">$0.00</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Earned</div>
-      <div class="stat-value green" id="stat-earned">$0.00</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Spent</div>
-      <div class="stat-value pink" id="stat-spent">$0.00</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Coming Up</div>
-      <div class="stat-value yellow" id="stat-upcoming">$0.00</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">After Upcoming</div>
-      <div class="stat-value cyan" id="stat-after">$0.00</div>
-    </div>
-  </div>
+  <!-- Calculator (collapsible) -->
+  <div class="calc-panel" id="calc-panel">
+    <div class="calc-display" id="calc-display">0</div>
+    <div class="calc-grid">
+      <button class="calc-btn wide red"  onclick="calcClear()">C</button>
+      <button class="calc-btn"           onclick="calcSign()">+/−</button>
+      <button class="calc-btn op"        onclick="calcOp('÷')">÷</button>
 
-  <!-- ── Budget Bar ── -->
-  <div class="budget-section">
-    <div class="budget-header">
-      <div class="budget-title">Monthly Budget</div>
-      <div class="budget-numbers" id="budget-numbers">Set a limit below</div>
-    </div>
-    <div class="budget-track">
-      <div class="budget-fill" id="budget-fill" style="width:0%"></div>
-    </div>
-    <div style="margin-top:10px;">
-      <div class="budget-limit-row">
-        <input type="number" id="budget-limit" placeholder="Set monthly budget limit e.g. 3000" min="0" step="100" />
-        <button class="add-btn bill-paid" style="width:auto;padding:9px 16px;margin:0;" onclick="updateBudget()">Set</button>
-      </div>
+      <button class="calc-btn"           onclick="calcNum('7')">7</button>
+      <button class="calc-btn"           onclick="calcNum('8')">8</button>
+      <button class="calc-btn"           onclick="calcNum('9')">9</button>
+      <button class="calc-btn op"        onclick="calcOp('×')">×</button>
+
+      <button class="calc-btn"           onclick="calcNum('4')">4</button>
+      <button class="calc-btn"           onclick="calcNum('5')">5</button>
+      <button class="calc-btn"           onclick="calcNum('6')">6</button>
+      <button class="calc-btn op"        onclick="calcOp('−')">−</button>
+
+      <button class="calc-btn"           onclick="calcNum('1')">1</button>
+      <button class="calc-btn"           onclick="calcNum('2')">2</button>
+      <button class="calc-btn"           onclick="calcNum('3')">3</button>
+      <button class="calc-btn op"        onclick="calcOp('+')">+</button>
+
+      <button class="calc-btn wide"      onclick="calcNum('0')">0</button>
+      <button class="calc-btn"           onclick="calcDot()">.</button>
+      <button class="calc-btn gold"      onclick="calcEquals()">=</button>
     </div>
   </div>
 
-  <!-- ── Main Layout ── -->
-  <div class="main-layout">
-
-    <!-- Left: Calendar -->
-    <div>
-      <div class="calendar-wrap">
-        <div class="cal-nav">
-          <button class="nav-btn" onclick="changeMonth(-1)">&#8592;</button>
-          <div class="cal-month" id="cal-month-label"></div>
-          <button class="nav-btn" onclick="changeMonth(1)">&#8594;</button>
-        </div>
-        <div class="cal-days-header">
-          <div class="cal-day-name">Sun</div>
-          <div class="cal-day-name">Mon</div>
-          <div class="cal-day-name">Tue</div>
-          <div class="cal-day-name">Wed</div>
-          <div class="cal-day-name">Thu</div>
-          <div class="cal-day-name">Fri</div>
-          <div class="cal-day-name">Sat</div>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
-
-      <!-- Timeline -->
-      <div class="timeline-wrap">
-        <div class="timeline-tabs">
-          <button class="tab active" onclick="setFilter('all',this)">All</button>
-          <button class="tab"        onclick="setFilter('past',this)">Past</button>
-          <button class="tab"        onclick="setFilter('today',this)">Today</button>
-          <button class="tab"        onclick="setFilter('upcoming',this)">Upcoming</button>
-        </div>
-        <div class="timeline-list" id="timeline-list"></div>
-      </div>
+  <!-- Add Entry Form -->
+  <div class="form-card">
+    <div class="type-btns">
+      <button class="type-btn active-income" onclick="selectType('income', this)">🟢 Income</button>
+      <button class="type-btn" onclick="selectType('bill-due', this)">🔴 Bill Due</button>
+      <button class="type-btn" onclick="selectType('bill-paid', this)">🔵 Paid</button>
+      <button class="type-btn" onclick="selectType('upcoming', this)">🟡 Upcoming</button>
+      <button class="type-btn" onclick="selectType('savings', this)">🟣 Savings</button>
     </div>
-
-    <!-- Right: Side Panel -->
-    <div class="side-panel">
-      <div class="panel-card">
-        <div class="panel-title">✦ Add Entry</div>
-
-        <div class="form-group">
-          <label>Type</label>
-          <div class="type-btns">
-            <button class="type-btn active-income" data-type="income"    onclick="selectType('income',this)">💚 Income</button>
-            <button class="type-btn"               data-type="bill-due"  onclick="selectType('bill-due',this)">🔴 Bill Due</button>
-            <button class="type-btn"               data-type="bill-paid" onclick="selectType('bill-paid',this)">🔵 Paid</button>
-            <button class="type-btn"               data-type="upcoming"  onclick="selectType('upcoming',this)">🟡 Upcoming</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Label</label>
-          <input type="text" id="entry-label" placeholder="e.g. Rent, Paycheck, Netflix…" />
-        </div>
-
-        <div class="form-group">
-          <label>Amount ($)</label>
-          <input type="number" id="entry-amount" placeholder="0.00" min="0" step="0.01" />
-        </div>
-
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="entry-date" />
-        </div>
-
-        <div class="form-group">
-          <label>Recurrence</label>
-          <select id="entry-recur">
-            <option value="none">One-time</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-
-        <button class="add-btn income" id="add-btn" onclick="addEntry()">✦ Add Entry</button>
-      </div>
-    </div>
-
+    <input type="text" id="entry-label" placeholder="Label e.g. Rent, Paycheck…" />
+    <input type="number" id="entry-amount" placeholder="Amount e.g. 1500" inputmode="decimal" min="0" step="0.01" />
+    <input type="date" id="entry-date" />
+    <button class="add-btn income" id="add-btn" onclick="addEntry()">+ Add</button>
   </div>
-</div>
+
+  <!-- Entry List -->
+  <div class="entry-list" id="entry-list">
+    <div class="empty">No entries yet. Add one above.</div>
+  </div>
 
 <script>
-let entries     = JSON.parse(localStorage.getItem('cashchroma-entries') || '[]');
-let budgetLimit = parseFloat(localStorage.getItem('cashchroma-budget') || '0');
-let currentType = 'income';
-let currentFilter = 'all';
-let viewYear, viewMonth;
-let selectedDate = null;
+  let entries = JSON.parse(localStorage.getItem('cc-entries') || '[]');
+  let currentType = 'income';
 
-const today = new Date();
-today.setHours(0,0,0,0);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  document.getElementById('entry-date').value = fmtDate(today);
+  renderAll();
 
-(function init() {
-  viewYear  = today.getFullYear();
-  viewMonth = today.getMonth();
-  document.getElementById('entry-date').value = fmtDateInput(today);
-  if (budgetLimit > 0) document.getElementById('budget-limit').value = budgetLimit;
-  render();
-})();
+  /* ── Calculator ── */
+  let calcVal = '0', calcPrev = null, calcOper = null, calcReset = false;
 
-function render() {
-  renderCalendar();
-  renderSummary();
-  renderTimeline();
-  renderBudget();
-}
+  function toggleCalc() { document.getElementById('calc-panel').classList.toggle('open'); }
 
-function renderCalendar() {
-  const MONTHS = ['January','February','March','April','May','June',
-                  'July','August','September','October','November','December'];
-  document.getElementById('cal-month-label').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+  function calcDisplay() {
+    const el = document.getElementById('calc-display');
+    el.textContent = calcVal.length > 10 ? parseFloat(calcVal).toPrecision(8) : calcVal;
+  }
+  function calcNum(n) {
+    if (calcReset) { calcVal = n; calcReset = false; }
+    else calcVal = calcVal === '0' ? n : calcVal + n;
+    calcDisplay();
+  }
+  function calcDot() {
+    if (calcReset) { calcVal = '0.'; calcReset = false; calcDisplay(); return; }
+    if (!calcVal.includes('.')) { calcVal += '.'; calcDisplay(); }
+  }
+  function calcSign() { calcVal = String(parseFloat(calcVal) * -1); calcDisplay(); }
+  function calcOp(op) {
+    if (calcPrev !== null && !calcReset) calcEquals(true);
+    calcPrev = parseFloat(calcVal); calcOper = op; calcReset = true;
+  }
+  function calcEquals(chain = false) {
+    if (calcPrev === null || calcOper === null) return;
+    const cur = parseFloat(calcVal);
+    let result;
+    if (calcOper === '+') result = calcPrev + cur;
+    if (calcOper === '−') result = calcPrev - cur;
+    if (calcOper === '×') result = calcPrev * cur;
+    if (calcOper === '÷') result = cur === 0 ? 'Error' : calcPrev / cur;
+    calcVal = String(result);
+    if (!chain) { calcPrev = null; calcOper = null; }
+    calcReset = !chain;
+    calcDisplay();
+  }
+  function calcClear() { calcVal = '0'; calcPrev = null; calcOper = null; calcReset = false; calcDisplay(); }
 
-  const grid = document.getElementById('cal-grid');
-  grid.innerHTML = '';
+  /* ── App ── */
+  function renderAll() { renderBalance(); renderList(); }
 
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-
-  for (let i = 0; i < firstDay; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'cal-cell empty';
-    grid.appendChild(cell);
+  function renderBalance() {
+    let earned = 0, spent = 0;
+    entries.forEach(e => {
+      const d = parseDate(e.date);
+      if (e.type === 'income' && d <= today)    earned += e.amount;
+      if (e.type === 'bill-paid' && d <= today) spent  += e.amount;
+      if (e.type === 'bill-due' && d <= today)  spent  += e.amount;
+      if (e.type === 'savings' && d <= today)   spent  += e.amount;
+    });
+    const balance = earned - spent;
+    const el = document.getElementById('balance');
+    el.textContent = fmt(balance);
+    el.className = 'balance ' + (balance < 0 ? 'negative' : 'positive');
   }
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(viewYear, viewMonth, d);
-    const dateStr = fmtDateInput(date);
-    const cell = document.createElement('div');
-
-    let classes = 'cal-cell';
-    if (date.getTime() === today.getTime()) classes += ' today';
-    if (date < today) classes += ' past';
-    if (selectedDate === dateStr) classes += ' selected';
-    cell.className = classes;
-
-    const num = document.createElement('div');
-    num.className = 'day-num';
-    num.textContent = d;
-    cell.appendChild(num);
-
-    const dayEntries = entries.filter(e => e.date === dateStr);
-    if (dayEntries.length) {
-      const chips = document.createElement('div');
-      chips.className = 'cal-chips';
-      dayEntries.slice(0, 3).forEach(e => {
-        const chip = document.createElement('div');
-        chip.className = `cal-chip ${e.type}`;
-        chip.textContent = e.label;
-        chips.appendChild(chip);
-      });
-      if (dayEntries.length > 3) {
-        const more = document.createElement('div');
-        more.className = 'cal-chip upcoming';
-        more.textContent = `+${dayEntries.length - 3} more`;
-        chips.appendChild(more);
-      }
-      cell.appendChild(chips);
-    }
-
-    cell.onclick = () => selectDay(dateStr);
-    grid.appendChild(cell);
-  }
-}
-
-function selectDay(dateStr) {
-  selectedDate = dateStr;
-  document.getElementById('entry-date').value = dateStr;
-  renderCalendar();
-}
-
-function changeMonth(dir) {
-  viewMonth += dir;
-  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-  if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
-  renderCalendar();
-}
-
-function renderSummary() {
-  let earned = 0, spent = 0, upcoming = 0;
-  entries.forEach(e => {
-    const d = parseDate(e.date);
-    if (e.type === 'income'    && d <= today) earned   += e.amount;
-    if (e.type === 'bill-paid' && d <= today) spent    += e.amount;
-    if (e.type === 'bill-due'  && d <= today) spent    += e.amount;
-    if (e.type === 'upcoming')                upcoming  += e.amount;
-    if (e.type === 'bill-due'  && d > today)  upcoming += e.amount;
-  });
-
-  const balance = earned - spent;
-  const after   = balance - upcoming;
-
-  document.getElementById('stat-balance').textContent  = fmt(balance);
-  document.getElementById('stat-earned').textContent   = fmt(earned);
-  document.getElementById('stat-spent').textContent    = fmt(spent);
-  document.getElementById('stat-upcoming').textContent = fmt(upcoming);
-  document.getElementById('stat-after').textContent    = fmt(after);
-
-  const balanceCard = document.getElementById('balance-card');
-  const balanceStat = document.getElementById('stat-balance');
-  if (balance < 0) {
-    balanceCard.classList.add('negative');
-    balanceStat.className = 'stat-value pink';
-  } else {
-    balanceCard.classList.remove('negative');
-    balanceStat.className = 'stat-value green';
-  }
-}
-
-function updateBudget() {
-  const val = parseFloat(document.getElementById('budget-limit').value) || 0;
-  budgetLimit = val;
-  localStorage.setItem('cashchroma-budget', budgetLimit);
-  renderBudget();
-}
-
-function renderBudget() {
-  const fill    = document.getElementById('budget-fill');
-  const numbers = document.getElementById('budget-numbers');
-  let spent = 0;
-  entries.forEach(e => {
-    const d = parseDate(e.date);
-    if ((e.type === 'bill-paid' || e.type === 'bill-due') && d <= today) spent += e.amount;
-  });
-
-  if (!budgetLimit) {
-    fill.style.width = '0%';
-    fill.className = 'budget-fill';
-    numbers.textContent = 'Set a limit below';
-    return;
-  }
-
-  const pct = Math.min((spent / budgetLimit) * 100, 100);
-  fill.style.width = pct + '%';
-  fill.className = 'budget-fill' + (pct >= 100 ? ' over' : pct >= 75 ? ' warn' : '');
-  const remaining = budgetLimit - spent;
-  numbers.textContent = remaining >= 0
-    ? `${fmt(spent)} of ${fmt(budgetLimit)} — ${fmt(remaining)} left`
-    : `${fmt(spent)} of ${fmt(budgetLimit)} — ${fmt(Math.abs(remaining))} OVER`;
-}
-
-function setFilter(filter, btn) {
-  currentFilter = filter;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  renderTimeline();
-}
-
-function renderTimeline() {
-  const list = document.getElementById('timeline-list');
-  list.innerHTML = '';
-  const todayStr = fmtDateInput(today);
-
-  let filtered = [...entries].sort((a,b) => a.date.localeCompare(b.date));
-  if (currentFilter === 'past')     filtered = filtered.filter(e => e.date < todayStr);
-  else if (currentFilter === 'today')    filtered = filtered.filter(e => e.date === todayStr);
-  else if (currentFilter === 'upcoming') filtered = filtered.filter(e => e.date > todayStr);
-
-  if (!filtered.length) {
-    list.innerHTML = '<div class="empty-state">No entries here yet ✦</div>';
-    return;
-  }
-
-  let lastZone = null;
-  filtered.forEach(e => {
-    if (currentFilter === 'all') {
-      const zone = e.date < todayStr ? 'Past' : e.date === todayStr ? 'Today' : 'Upcoming';
-      if (zone !== lastZone) {
-        const lbl = document.createElement('div');
-        lbl.className = 'timeline-section-label';
-        lbl.textContent = zone;
-        list.appendChild(lbl);
-        lastZone = zone;
-      }
-    }
-
-    const row = document.createElement('div');
-    const isPast = e.date < todayStr;
-    row.className = `entry-row ${e.type}${isPast ? ' past-entry' : ''}`;
-
-    const typeLabels = { 'income': '💚 Income', 'bill-due': '🔴 Bill Due', 'bill-paid': '🔵 Paid', 'upcoming': '🟡 Upcoming' };
-    const allTypes = ['income', 'bill-due', 'bill-paid', 'upcoming'];
-    const typeBtns = allTypes.map(t => `
-      <button class="mini-type-btn ${t === e.type ? 'mini-active-' + t : ''}"
-        onclick="changeEntryType('${e.id}', '${t}', event)">
-        ${typeLabels[t]}
-      </button>`).join('');
-
-    row.innerHTML = `
-      <div class="entry-dot ${e.type}"></div>
-      <div class="entry-info">
-        <div class="entry-label">${e.label}</div>
-        <div class="entry-date">${fmtDateDisplay(e.date)}${e.recur !== 'none' ? ' · ' + e.recur : ''}</div>
-        <div class="entry-type-switcher" id="switcher-${e.id}" style="display:none;">
-          ${typeBtns}
+  function renderList() {
+    const list = document.getElementById('entry-list');
+    if (!entries.length) { list.innerHTML = '<div class="empty">No entries yet. Add one above.</div>'; return; }
+    const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+    list.innerHTML = '';
+    sorted.forEach(e => {
+      const row = document.createElement('div');
+      row.className = `entry-row ${e.type}`;
+      row.innerHTML = `
+        <div class="entry-dot ${e.type}"></div>
+        <div class="entry-info">
+          <div class="entry-label">${e.label}</div>
+          <div class="entry-date">${fmtDisplay(e.date)}</div>
         </div>
-      </div>
-      <div class="entry-amount ${e.type}">${e.type === 'income' ? '+' : '-'}${fmt(e.amount)}</div>
-      <button class="status-toggle-btn" onclick="toggleSwitcher('${e.id}', event)" title="Change status">⇄</button>
-      <button class="delete-btn" onclick="deleteEntry('${e.id}')">×</button>
-    `;
-    list.appendChild(row);
-  });
-}
-
-function addEntry() {
-  const label  = document.getElementById('entry-label').value.trim();
-  const amount = parseFloat(document.getElementById('entry-amount').value);
-  const date   = document.getElementById('entry-date').value;
-  const recur  = document.getElementById('entry-recur').value;
-
-  if (!label)             { highlight('entry-label');  return; }
-  if (!amount || amount <= 0) { highlight('entry-amount'); return; }
-  if (!date)              { highlight('entry-date');   return; }
-
-  entries.push({ id: Date.now().toString(), type: currentType, label, amount, date, recur });
-  save();
-  render();
-  document.getElementById('entry-label').value  = '';
-  document.getElementById('entry-amount').value = '';
-}
-
-function toggleSwitcher(id, event) {
-  event.stopPropagation();
-  const switcher = document.getElementById('switcher-' + id);
-  const isVisible = switcher.style.display !== 'none';
-  // Close all other switchers first
-  document.querySelectorAll('.entry-type-switcher').forEach(s => s.style.display = 'none');
-  document.querySelectorAll('.status-toggle-btn').forEach(b => b.classList.remove('active'));
-  if (!isVisible) {
-    switcher.style.display = 'flex';
-    event.currentTarget.classList.add('active');
+        <div class="entry-amount ${e.type}">${e.type === 'income' ? '+' : '-'}${fmt(e.amount)}</div>
+        <button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>
+      `;
+      list.appendChild(row);
+    });
   }
-}
 
-function changeEntryType(id, newType, event) {
-  event.stopPropagation();
-  const entry = entries.find(e => e.id === id);
-  if (entry) {
-    entry.type = newType;
-    save();
-    render();
+  function addEntry() {
+    const label  = document.getElementById('entry-label').value.trim();
+    const amount = parseFloat(document.getElementById('entry-amount').value);
+    const date   = document.getElementById('entry-date').value;
+    if (!label)              { flash('entry-label');  return; }
+    if (!amount || amount<=0){ flash('entry-amount'); return; }
+    if (!date)               { flash('entry-date');   return; }
+    entries.push({ id: Date.now().toString(), type: currentType, label, amount, date });
+    save(); renderAll();
+    document.getElementById('entry-label').value  = '';
+    document.getElementById('entry-amount').value = '';
   }
-}
 
-function deleteEntry(id) {
-  entries = entries.filter(e => e.id !== id);
-  save();
-  render();
-}
+  function deleteEntry(id) { entries = entries.filter(e => e.id !== id); save(); renderAll(); }
 
-function save() { localStorage.setItem('cashchroma-entries', JSON.stringify(entries)); }
-
-function selectType(type, btn) {
-  currentType = type;
-
-  document.querySelectorAll('.type-btn').forEach(b => b.className = 'type-btn');
-  btn.classList.add(`active-${type}`);
-  document.getElementById('add-btn').className = `add-btn ${type}`;
-
-  const colorMap = {
-    'income':    { border: '#00FF87', shadow: '0 0 0 3px rgba(0,255,135,0.25)',  glow: 'rgba(0,255,135,0.35)'  },
-    'bill-due':  { border: '#FF2D78', shadow: '0 0 0 3px rgba(255,45,120,0.25)', glow: 'rgba(255,45,120,0.35)' },
-    'bill-paid': { border: '#00D4FF', shadow: '0 0 0 3px rgba(0,212,255,0.25)',  glow: 'rgba(0,212,255,0.35)'  },
-    'upcoming':  { border: '#FFD600', shadow: '0 0 0 3px rgba(255,214,0,0.25)',  glow: 'rgba(255,214,0,0.35)'  },
-  };
-  const c = colorMap[type];
-
-  let styleEl = document.getElementById('dynamic-focus-style');
-  if (!styleEl) {
-    styleEl = document.createElement('style');
-    styleEl.id = 'dynamic-focus-style';
-    document.head.appendChild(styleEl);
+  function selectType(type, btn) {
+    currentType = type;
+    document.querySelectorAll('.type-btn').forEach(b => b.className = 'type-btn');
+    btn.classList.add(`active-${type}`);
+    document.getElementById('add-btn').className = `add-btn ${type}`;
   }
-  styleEl.textContent = `input:focus, select:focus { border-color: ${c.border} !important; box-shadow: ${c.shadow} !important; }`;
 
-  const panel = document.querySelector('.panel-card');
-  panel.style.borderColor = c.border;
-  panel.style.boxShadow = `0 6px 28px rgba(0,0,0,0.1), 0 0 20px ${c.glow}, inset 0 1px 0 rgba(255,255,255,0.65)`;
-
-  const placeholders = {
-    'income':    'e.g. Paycheck, Freelance, Bonus…',
-    'bill-due':  'e.g. Rent, Phone, Credit Card…',
-    'bill-paid': 'e.g. Netflix paid, Gym paid…',
-    'upcoming':  'e.g. Con Ed, Car insurance…',
-  };
-  document.getElementById('entry-label').placeholder = placeholders[type];
-}
-
-function fmt(n) {
-  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function fmtDateInput(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function fmtDateDisplay(str) {
-  const [y,m,d] = str.split('-').map(Number);
-  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${names[m-1]} ${d}, ${y}`;
-}
-
-function parseDate(str) {
-  const [y,m,d] = str.split('-').map(Number);
-  const dt = new Date(y, m-1, d);
-  dt.setHours(0,0,0,0);
-  return dt;
-}
-
-function highlight(id) {
-  const el = document.getElementById(id);
-  el.style.borderColor = '#FF2D78';
-  el.style.boxShadow = '0 0 0 3px rgba(255,45,120,0.25)';
-  setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 1500);
-}
+  function save() { localStorage.setItem('cc-entries', JSON.stringify(entries)); }
+  function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+  function fmtDisplay(str) {
+    const [y, m, d] = str.split('-').map(Number);
+    return `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]} ${d}, ${y}`;
+  }
+  function parseDate(str) { const [y,m,d]=str.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setHours(0,0,0,0); return dt; }
+  function flash(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor = '#FF2D78';
+    setTimeout(() => el.style.borderColor = '', 1500);
+  }
 </script>
 </body>
 </html>
